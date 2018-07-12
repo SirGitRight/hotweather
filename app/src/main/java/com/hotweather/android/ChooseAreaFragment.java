@@ -151,7 +151,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCities(){
         titleText.setText(selectedProvince.getProvinceName());
         backButton.setVisibility(View.VISIBLE);
-        cityList = DataSupport.where("provinceId=?", String.valueOf(selectedProvince.getId())).find(City.class);
+        cityList = DataSupport.where("provinceid=?", String.valueOf(selectedProvince.getId())).find(City.class);
         if (cityList.size()>0){
             dataList.clear();
             for (City city :cityList){
@@ -163,7 +163,7 @@ public class ChooseAreaFragment extends Fragment {
         }
         else{
             int provinceCode = selectedProvince.getProvinceCode();
-            String address = "http://guolin.tech/api/china/"+provinceCode;
+            String address = "http://guolin.tech/api/china/"+ provinceCode;
             queryFromServer(address, "city");
         }
     }
@@ -174,7 +174,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCounties(){
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
-        countyList = DataSupport.where("cityid = ?", String.valueOf(selectedCity.getId())).find(County.class);
+        countyList = DataSupport.where("cityid=?", String.valueOf(selectedCity.getId())).find(County.class);
         if (countyList.size()>0){
             dataList.clear();
             for (County county : countyList){
@@ -187,7 +187,7 @@ public class ChooseAreaFragment extends Fragment {
         else {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
-            String address = "http://guolin/tech/api/china/"+provinceCode+"/"+cityCode;
+            String address = "http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
             queryFromServer(address, "county");
         }
     }
@@ -195,7 +195,7 @@ public class ChooseAreaFragment extends Fragment {
     /**
      * 根据传入的地址和类型从服务器上查询省市县数据
      */
-    private void queryFromServer(final String address, final String type){
+    private void queryFromServer(String address, final String type){
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
 
@@ -207,8 +207,12 @@ public class ChooseAreaFragment extends Fragment {
                     result = Utility.handleProvinceResponse(responseText);
                 }
                 else if ("city".equals(type)){
-                    result = Utility.handleCityResponse(responseText, selectedCity.getId());
+                    result = Utility.handleCityResponse(responseText, selectedProvince.getId());
                 }
+                else if ("county".equals(type)){
+                    result = Utility.handleCountyResponse(responseText, selectedCity.getId());
+                }
+
                 if (result){
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -248,7 +252,7 @@ public class ChooseAreaFragment extends Fragment {
     private void showProgressDialog(){
         if (progressDialog ==null){
             progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("正在加载…");
+            progressDialog.setMessage("正在加载...");
             progressDialog.setCanceledOnTouchOutside(false);
         }
         progressDialog.show();
